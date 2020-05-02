@@ -6,7 +6,7 @@ import {
 } from './styles';
 
 import LandingPage from './pages/LandingPage'
-import AppFooter from './components/AppFooter'
+import MainPage from './pages/MainPage'
 
 class Routes extends React.Component {
 
@@ -16,8 +16,8 @@ class Routes extends React.Component {
         <HashRouter>
           <Switch>
             <Route exact path={'/'} component={LandingPage} />
+            <Route exact path = {'/main/'} component = {MainPage} />
           </Switch>
-          <AppFooter />
         </HashRouter>
       </PageDiv>
     )
