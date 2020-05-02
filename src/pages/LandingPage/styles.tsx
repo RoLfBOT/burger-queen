@@ -3,15 +3,11 @@ import styled, { StyledProps } from '../../config/styled-components'
 type BannerTitleProps = StyledProps<{ bold: Boolean }>
 
 export const LandingPageContainer = styled.div`
-  position: absolute;
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  left: 0;
   background-color: #CB2B20;
 `
 export const BannerSection = styled.div`

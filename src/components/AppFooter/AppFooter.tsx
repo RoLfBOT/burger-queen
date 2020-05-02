@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { withRouter, RouteComponentProps } from 'react-router-dom'
 
 import {
   FooterDiv,
@@ -10,9 +11,19 @@ import {
 
 import RaiseHandIcon from '../../assets/raiseHand.svg';
 
-class AppFooter extends React.Component {
+interface IProps extends RouteComponentProps{
+  route?: string
+};
+
+class AppFooter extends React.Component<IProps, {}> {
+
+  public constructor(props: IProps) {
+    super(props);
+  }
 
   public render(): JSX.Element {
+    const { pathname } = this.props.location
+    console.log(pathname) 
     return (
       <FooterDiv>
         <FooterIconDiv>
@@ -26,4 +37,4 @@ class AppFooter extends React.Component {
   }
 }
 
-export default AppFooter;
+export default withRouter(AppFooter);

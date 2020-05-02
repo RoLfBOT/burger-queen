@@ -1,5 +1,4 @@
 import * as React from 'react'
-import AppFooter from './../../components/AppFooter'
 
 import {
   LandingPageContainer,
@@ -15,8 +14,7 @@ class LandingPage extends React.Component {
         <BannerSection>
           <BannerTitle bold={false}>Welcome to</BannerTitle>
           <BannerTitle bold={true}>Contoso Burgers</BannerTitle>
-        </BannerSection>
-        <AppFooter/>
+        </BannerSection>      
       </LandingPageContainer>
     )
   }
