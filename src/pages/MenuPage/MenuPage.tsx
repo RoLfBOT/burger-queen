@@ -15,29 +15,34 @@ import { PrimaryButton } from '@fluentui/react/lib/Button'
 
 import AppFooter from '../../components/AppFooter'
 import MenuData, { IMenu, IMenuItem, ICartItem } from '../../utils/DataHelper'
-import MenuItemComponent from '../../components/MenuItemComponent'
-import CartItemComponent from '../../components/CartItemComponent'
+import MenuItem from '../../components/MenuItem'
+import CartItem from '../../components/CartItem'
+import OrderDialog from '../../components/OrderDialog'
 import { AppConstants } from '../../utils/AppConstants'
 
 interface IState {
   cart: ICartItem[]
+  showDialog: boolean
 }
 
 class MenuPage extends React.Component<{}, IState> {
 
   public state: IState = {
-    cart: []
+    cart: [],
+    showDialog: false
   }
 
   public constructor(props: {}) {
     super(props)
     this._AddItemToCart = this._AddItemToCart.bind(this)
     this._RenderMenuItems = this._RenderMenuItems.bind(this)
+    this._OpenOrderDialog = this._OpenOrderDialog.bind(this)
+    this._HideOrderDialog = this._HideOrderDialog.bind(this)
   }
 
   public render(): JSX.Element {
     const { Items } = MenuData as IMenu
-    const { cart } = this.state
+    const { cart, showDialog} = this.state
     const footerText = cart && cart.length > 0 ? AppConstants.footerCheckoutText : AppConstants.footerMenuText
     return (
       <>
@@ -62,16 +67,20 @@ class MenuPage extends React.Component<{}, IState> {
             />
           </CartColumn>}
         </MenuPageContainer>
+        <OrderDialog
+          isDialogOpen={showDialog}
+          hideDialog={this._HideOrderDialog}
+        />
       </>
     )
   }
 
   private _RenderMenuItems(menuItem: IMenuItem, index: number): JSX.Element {
     return (
-      <MenuItemComponent
+      <MenuItem
         name={menuItem.name}
         image={menuItem.img}
-        onClick={this._AddItemToCart}
+        onClick={this._OpenOrderDialog}
         key={index}
       />
     )
@@ -81,13 +90,21 @@ class MenuPage extends React.Component<{}, IState> {
     const { item, quantity } = cartItem
 
     return (
-      <CartItemComponent
+      <CartItem
         name={item.name}
         image={item.img}
         quantity={quantity}
         key={index}
       />
     )
+  }
+
+  private _OpenOrderDialog(): void {
+    this.setState({ showDialog: true })
+  }
+
+  private _HideOrderDialog(): void {
+    this.setState({ showDialog: false })
   }
 
   private _AddItemToCart(event: React.MouseEvent<HTMLDivElement>): void {
