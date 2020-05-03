@@ -4,14 +4,11 @@ import { withRouter, RouteComponentProps } from 'react-router-dom'
 import {
   FooterDiv,
   FooterTitleDiv,
-  FooterTitle,
-  FooterIconDiv,
-  FooterIcon
+  FooterTitle
 } from './styles';
+import { AppConstants } from "../../utils/AppConstants"
 
-import RaiseHandIcon from '../../assets/raiseHand.svg';
-
-interface IProps extends RouteComponentProps{
+interface IProps extends RouteComponentProps {
   route?: string
 };
 
@@ -22,15 +19,13 @@ class AppFooter extends React.Component<IProps, {}> {
   }
 
   public render(): JSX.Element {
-    const { pathname } = this.props.location
-    console.log(pathname) 
+    const { pathname } = this.props.location    
+    const footerText = pathname === "/menu" ? AppConstants.footerMenuText : AppConstants.footerLandingText
+
     return (
-      <FooterDiv>
-        <FooterIconDiv>
-          <FooterIcon src={RaiseHandIcon} />
-        </FooterIconDiv>
+      <FooterDiv>        
         <FooterTitleDiv>
-          <FooterTitle>Raise your hand to start ordering</FooterTitle>
+          <FooterTitle>{footerText}</FooterTitle>
         </FooterTitleDiv>
       </FooterDiv>
     )

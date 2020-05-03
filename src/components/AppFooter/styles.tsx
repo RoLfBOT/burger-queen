@@ -10,13 +10,15 @@ export const FooterDiv = styled.div`
   align-items: center;
   background-color: #E8E8E8;
   margin: auto;
+  padding: 0 32px;
   border-radius: 30px 30px 0 0;
   height: 25%;
   width: calc(100% - 64px);
+  box-sizing: border-box;
 `
 
 export const FooterTitleDiv = styled.div`
-  width: 45%;
+  padding: 32px;
 `
 
 export const FooterTitle = styled.h1`
@@ -24,17 +26,4 @@ export const FooterTitle = styled.h1`
   font-size: 50px;
   line-height: 50px;
   color: #000;
-`
-
-export const FooterIconDiv = styled.div`
-  margin: 0 16px;
-  border-radius: 50%;
-  border: 2px solid black;
-`
-
-export const FooterIcon = styled.img`
-  width: 60px;
-  height: 80px;
-  margin: 26px;
-  vertical-align: middle;
 `
