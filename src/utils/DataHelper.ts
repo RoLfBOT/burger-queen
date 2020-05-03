@@ -28,4 +28,9 @@ export interface IMenu {
   Items: IMenuItem []
 }
 
+export interface ICartItem {
+  item: IMenuItem,
+  quantity: number
+}
+
 export default MenuData

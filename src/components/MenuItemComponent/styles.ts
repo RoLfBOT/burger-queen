@@ -7,7 +7,6 @@ export const ItemBox = styled.div`
 `
 
 export const ItemDisplayImage = styled.img`
-  
   max-width: 100%;
 `
 

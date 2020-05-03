@@ -11,9 +11,10 @@ import {
 interface IProps {
   name: string;
   image: string;
+  onClick: (event: React.MouseEvent<HTMLDivElement>) => void
 }
 
-class FoodComponent extends React.Component<IProps, {}> {
+class MenuItemComponent extends React.Component<IProps, {}> {
 
   public constructor(props: IProps) {
     super(props);
@@ -22,7 +23,9 @@ class FoodComponent extends React.Component<IProps, {}> {
   public render(): JSX.Element {
     const { name, image } = this.props
     return (
-        <ItemBox>
+        <ItemBox
+          onClick={this.props.onClick}
+        >
           <ItemDisplayContainer>
             <ItemDisplayImage src={image} />          
           </ItemDisplayContainer>          
@@ -32,4 +35,4 @@ class FoodComponent extends React.Component<IProps, {}> {
   }
 }
 
-export default FoodComponent;
+export default MenuItemComponent;
