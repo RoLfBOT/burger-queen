@@ -53,6 +53,13 @@ module.exports = {
             loader: 'image-webpack-loader',            
           }
         ],
+      },
+      {
+        test: /\.config$/,
+        loader: 'file-loader',
+        options: {
+          name: '[name].[ext]'
+        }
       }
     ]
   },
