@@ -11,7 +11,7 @@ export const MenuPageContainer = styled.div`
 `
 
 export const MenuCardColumn = styled.div`
-  flex: 0 0 75%;
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -31,7 +31,6 @@ export const PageHeader = styled.h1`
 
 export const MenuCardDiv = styled.div`
   width: 100%;
-  height: 100%;
   margin: 32px 0;
   display: flex;
   flex-wrap: wrap;
@@ -41,7 +40,7 @@ export const MenuCardDiv = styled.div`
 `
 
 export const CartColumn = styled.div`
-  flex: 1;
+  flex: 0 0 25%;
   display: flex;
   flex-direction: column;
   background-color: #F7F6F4;

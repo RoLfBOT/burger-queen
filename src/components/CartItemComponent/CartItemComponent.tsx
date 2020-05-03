@@ -1,7 +1,10 @@
 import * as React from 'react'
 
 import {
-  CartItemContainer
+  CartItemContainer,
+  ItemDisplayImg,
+  QuantityIndicator,
+  QuantitySpan
 } from './styles'
 
 interface IProps {
@@ -17,10 +20,13 @@ class CartItemComponent extends React.Component<IProps, {}> {
   }
 
   public render(): JSX.Element {
-    const { name, quantity } = this.props
+    const { image, quantity } = this.props
     return (
       <CartItemContainer>
-        {name + quantity}
+        <ItemDisplayImg src={image} />
+        <QuantityIndicator>
+          <QuantitySpan>{quantity}</QuantitySpan>
+        </QuantityIndicator>
       </CartItemContainer>
     )
   }

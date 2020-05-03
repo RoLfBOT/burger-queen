@@ -38,6 +38,7 @@ class MenuPage extends React.Component<{}, IState> {
   public render(): JSX.Element {
     const { Items } = MenuData as IMenu
     const { cart } = this.state
+    const footerText = cart && cart.length > 0 ? AppConstants.footerCheckoutText : AppConstants.footerMenuText
     return (
       <>
         <MenuPageContainer>
@@ -47,10 +48,10 @@ class MenuPage extends React.Component<{}, IState> {
               {Items.map(this._RenderMenuItems)}
             </MenuCardDiv>
             <AppFooter
-              text={AppConstants.footerMenuText}
+              text={footerText}
             />
           </MenuCardColumn>
-          <CartColumn>
+          {cart && cart.length > 0 && <CartColumn>
             <OrderTitleDiv><span>Your Order</span></OrderTitleDiv>
             <CartItemsDiv>
               {cart.map(this._RenderCardPanel)}
@@ -59,7 +60,7 @@ class MenuPage extends React.Component<{}, IState> {
               styles={DoneButtonStyles}
               text="Done"
             />
-          </CartColumn>
+          </CartColumn>}
         </MenuPageContainer>
       </>
     )

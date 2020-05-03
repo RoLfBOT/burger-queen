@@ -11,7 +11,7 @@ export const FooterDiv = styled.div`
   justify-content: center;
   align-items: center;
   background-color: #E8E8E8;
-  margin: auto;
+  margin: auto auto 0 auto;
   padding: 0 32px;
   border-radius: 30px 30px 0 0;
   height: 25%;

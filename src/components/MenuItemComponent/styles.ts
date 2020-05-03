@@ -7,12 +7,12 @@ export const ItemBox = styled.div`
 `
 
 export const ItemDisplayImage = styled.img`
-  max-width: 100%;
+  max-width: 80%;
 `
 
 export const ItemDisplayContainer = styled.div`
-  width: 387px;
-  height: 257px;
+  width: 270px;
+  height: 180px;
   display: flex;
   justify-content: center;
   align-items: center;
