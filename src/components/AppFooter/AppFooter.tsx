@@ -5,11 +5,10 @@ import {
   FooterDiv,
   FooterTitleDiv,
   FooterTitle
-} from './styles';
-import { AppConstants } from "../../utils/AppConstants"
+} from './styles'
 
 interface IProps extends RouteComponentProps {
-  route?: string
+  text: string
 };
 
 class AppFooter extends React.Component<IProps, {}> {
@@ -19,13 +18,13 @@ class AppFooter extends React.Component<IProps, {}> {
   }
 
   public render(): JSX.Element {
-    const { pathname } = this.props.location    
-    const footerText = pathname === "/menu" ? AppConstants.footerMenuText : AppConstants.footerLandingText
+    const { pathname } = this.props.location   
+    const { text } = this.props    
 
     return (
-      <FooterDiv>        
+      <FooterDiv absolute={pathname !== '/menu'}>        
         <FooterTitleDiv>
-          <FooterTitle>{footerText}</FooterTitle>
+          <FooterTitle>{text}</FooterTitle>
         </FooterTitleDiv>
       </FooterDiv>
     )

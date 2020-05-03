@@ -1,10 +1,12 @@
-import styled from '../../config/styled-components';
+import styled, { StyledProps } from '../../config/styled-components';
+
+interface IAppFooterStyles {
+  absolute: boolean
+}
+
+type AppFooterStyles = StyledProps<IAppFooterStyles>
 
 export const FooterDiv = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -15,6 +17,12 @@ export const FooterDiv = styled.div`
   height: 25%;
   width: calc(100% - 64px);
   box-sizing: border-box;
+  ${(props: AppFooterStyles) => props.absolute && `
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  `}
 `
 
 export const FooterTitleDiv = styled.div`
