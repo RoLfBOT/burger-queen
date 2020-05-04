@@ -17,32 +17,27 @@ import AppFooter from '../../components/AppFooter'
 import MenuData, { IMenu, IMenuItem, ICartItem } from '../../utils/DataHelper'
 import MenuItem from '../../components/MenuItem'
 import CartItem from '../../components/CartItem'
-import OrderDialog from '../../components/OrderDialog'
 import { AppConstants } from '../../utils/AppConstants'
 
 interface IState {
   cart: ICartItem[]
-  showDialog: boolean
 }
 
 class MenuPage extends React.Component<{}, IState> {
 
   public state: IState = {
-    cart: [],
-    showDialog: false
+    cart: []
   }
 
   public constructor(props: {}) {
     super(props)
     this._AddItemToCart = this._AddItemToCart.bind(this)
     this._RenderMenuItems = this._RenderMenuItems.bind(this)
-    this._OpenOrderDialog = this._OpenOrderDialog.bind(this)
-    this._HideOrderDialog = this._HideOrderDialog.bind(this)
   }
 
   public render(): JSX.Element {
     const { Items } = MenuData as IMenu
-    const { cart, showDialog} = this.state
+    const { cart } = this.state
     const footerText = cart && cart.length > 0 ? AppConstants.footerCheckoutText : AppConstants.footerMenuText
     return (
       <>
@@ -67,10 +62,6 @@ class MenuPage extends React.Component<{}, IState> {
             />
           </CartColumn>}
         </MenuPageContainer>
-        <OrderDialog
-          isDialogOpen={showDialog}
-          hideDialog={this._HideOrderDialog}
-        />
       </>
     )
   }
@@ -78,10 +69,9 @@ class MenuPage extends React.Component<{}, IState> {
   private _RenderMenuItems(menuItem: IMenuItem, index: number): JSX.Element {
     return (
       <MenuItem
-        name={menuItem.name}
-        image={menuItem.img}
-        onClick={this._OpenOrderDialog}
+        item={menuItem}
         key={index}
+        addToCart={this._AddItemToCart}
       />
     )
   }
@@ -97,20 +87,10 @@ class MenuPage extends React.Component<{}, IState> {
         key={index}
       />
     )
-  }
+    }
 
-  private _OpenOrderDialog(): void {
-    this.setState({ showDialog: true })
-  }
-
-  private _HideOrderDialog(): void {
-    this.setState({ showDialog: false })
-  }
-
-  private _AddItemToCart(event: React.MouseEvent<HTMLDivElement>): void {
-    const cartItem = { name: "Supreme Burger", img: "https://burgerhubstorageaccount.blob.core.windows.net/images/mcdonalds-burger-png-12%20(1).png" } as IMenuItem
-
-    this.setState({ cart: [{ item: cartItem, quantity: 1 }] })
+  private _AddItemToCart(item: IMenuItem): void {
+    this.setState({ cart: this.state.cart.concat({ item, quantity: 1 }) })
   }
 }
 

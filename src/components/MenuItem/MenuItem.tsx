@@ -7,31 +7,65 @@ import {
   ItemDisplayImage
 } from './styles';
 
+import OrderDialog from '../OrderDialog'
+import { IMenuItem } from '../../utils/DataHelper';
 
 interface IProps {
-  name: string;
-  image: string;
-  onClick: (event: React.MouseEvent<HTMLDivElement>) => void
+  item: IMenuItem
+  addToCart: (item: IMenuItem) => void
 }
 
-class MenuItemComponent extends React.Component<IProps, {}> {
+interface IState {
+  showDialog: boolean
+}
+
+class MenuItemComponent extends React.Component<IProps, IState> {
+
+  public state: IState = {
+    showDialog: false
+  }
 
   public constructor(props: IProps) {
-    super(props);
+    super(props)
+    this._HideOrderDialog = this._HideOrderDialog.bind(this)
+    this._OpenOrderDialog = this._OpenOrderDialog.bind(this)
+    this._CloseOrderDialogAndAddToCart = this._CloseOrderDialogAndAddToCart.bind(this)
   }
 
   public render(): JSX.Element {
-    const { name, image } = this.props
+    const { item } = this.props
+    const { showDialog } = this.state
     return (
+      <>
         <ItemBox
-          onClick={this.props.onClick}
+          onClick={this._OpenOrderDialog}
         >
           <ItemDisplayContainer>
-            <ItemDisplayImage src={image} />          
+            <ItemDisplayImage src={item.img} />          
           </ItemDisplayContainer>          
-          <ItemName >{name}</ItemName>
+          <ItemName >{item.name}</ItemName>
         </ItemBox>
+        <OrderDialog
+          isDialogOpen={showDialog}
+          hideDialog={this._HideOrderDialog}
+          addToCart={this._CloseOrderDialogAndAddToCart}
+          selectedItem={item}
+        />
+      </>
     )
+  }
+
+  private _OpenOrderDialog(): void {
+    this.setState({ showDialog: true })
+  }
+
+  private _HideOrderDialog(): void {
+    this.setState({ showDialog: false })
+  }
+
+  private _CloseOrderDialogAndAddToCart(): void {
+    this.props.addToCart && this.props.addToCart(this.props.item)
+    this.setState({ showDialog: false })
   }
 }
 
