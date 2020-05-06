@@ -62,6 +62,7 @@ class MenuPage extends React.Component<{}, IState> {
             />
           </CartColumn>}
         </MenuPageContainer>
+        <img src="https://burgerhubstorageaccount.blob.core.windows.net/images/cursor.png" id="cursor_icon" />
       </>
     )
   }

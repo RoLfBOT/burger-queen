@@ -8,7 +8,7 @@ type AppFooterStyles = StyledProps<IAppFooterStyles>
 
 export const FooterDiv = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   background-color: #E8E8E8;
   margin: auto auto 0 auto;
