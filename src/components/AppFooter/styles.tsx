@@ -1,10 +1,15 @@
 import styled, { StyledProps } from '../../config/styled-components';
 
 interface IAppFooterStyles {
-  absolute: boolean
+  absolute: boolean  
+}
+
+interface IAppFooterTextStyles {
+  fontSize: number
 }
 
 type AppFooterStyles = StyledProps<IAppFooterStyles>
+type AppFooterTextStyles = StyledProps<IAppFooterTextStyles>
 
 export const FooterDiv = styled.div`
   display: flex;
@@ -31,7 +36,7 @@ export const FooterTitleDiv = styled.div`
 
 export const FooterTitle = styled.h1`
   font-family: Montserrat;
-  font-size: 50px;
+  font-size: ${(props: AppFooterTextStyles) => props.fontSize + 'px'};
   line-height: 50px;
   color: #000;
 `

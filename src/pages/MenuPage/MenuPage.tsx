@@ -41,6 +41,7 @@ class MenuPage extends React.Component<{}, IState> {
     const { Items } = MenuData as IMenu
     const { cart } = this.state
     const footerText = cart && cart.length > 0 ? AppConstants.footerCheckoutText : AppConstants.footerMenuText
+    const footerFontSize = cart && cart.length > 0 ? 30 : 40
     return (
       <>
         <img ref = {this._imageRef} src="https://burgerhubstorageaccount.blob.core.windows.net/images/yellow_cursor.png" id="cursor_icon" />
@@ -52,6 +53,7 @@ class MenuPage extends React.Component<{}, IState> {
             </MenuCardDiv>
             <AppFooter
               text={footerText}
+              fontSize={footerFontSize}
             />
           </MenuCardColumn>
           {cart && cart.length > 0 && <CartColumn>

@@ -10,6 +10,7 @@ import {
 
 interface IProps extends RouteComponentProps {
   text: string
+  fontSize: number
 };
 
 class AppFooter extends React.Component<IProps, {}> {
@@ -47,14 +48,18 @@ class AppFooter extends React.Component<IProps, {}> {
 
   public render(): JSX.Element {
     const { pathname } = this.props.location
-    const { text } = this.props
+    const { text, fontSize } = this.props
 
     return (
       <FooterDiv absolute={pathname !== '/menu'}>
         <video ref={this._VideoRef} className="video-container" autoPlay id="uservideo"></video>
         <canvas ref={this._CanvasRef} className="main-canvas" id="videocanvas"></canvas>
         <FooterTitleDiv>
-          <FooterTitle>{text}</FooterTitle>
+          <FooterTitle
+            fontSize={fontSize}
+          >
+            {text}
+          </FooterTitle>
         </FooterTitleDiv>
       </FooterDiv>
     )
@@ -98,7 +103,7 @@ class AppFooter extends React.Component<IProps, {}> {
       const context = this._CanvasRef.current?.getContext('2d')
       context && this.model.renderPredictions(predictions, this._CanvasRef.current, context, this._VideoRef.current)
 
-      if (predictions[0]) {        
+      if (predictions[0]) {
         const xbuffer = 150;
         const ybuffer = 100;
         const flicker = 7;
@@ -109,7 +114,7 @@ class AppFooter extends React.Component<IProps, {}> {
         if (this._VideoRef.current) {
           videoWith = this._VideoRef.current.width
           videoHeight = this._VideoRef.current.height
-        } 
+        }
         midx = (midx / videoWith) * window.innerWidth;
         midy = (midy / videoHeight) * window.innerHeight;
         midx = ((midx - xbuffer) / (window.innerWidth - 2 * xbuffer)) * window.innerWidth;

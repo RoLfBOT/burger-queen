@@ -19,7 +19,10 @@ class LandingPage extends React.Component {
             <BannerTitle bold={true}>Contoso Burgers</BannerTitle>
           </BannerSection>
         </LandingPageContainer>
-        <AppFooter text={AppConstants.footerLandingText} />
+        <AppFooter
+          text={AppConstants.footerLandingText}
+          fontSize={50}
+        />
       </>
     )
   }
