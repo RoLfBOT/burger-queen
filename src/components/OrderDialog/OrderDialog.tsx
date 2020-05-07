@@ -19,39 +19,102 @@ interface IProps {
   hideDialog?: () => void
   addToCart: () => void
   selectedItem: IMenuItem 
+  imgRef: any
 }
 
-const OrderDialog: React.FunctionComponent<IProps> = (props: IProps) => {
-  const { isDialogOpen, hideDialog, addToCart, selectedItem } = props
-  return (
-    <Modal
-      isOpen={isDialogOpen}
-      onDismiss={hideDialog}
-      isBlocking={false}
-      containerClassName={contentStyles.container}
-    >
-      <div className={contentStyles.body}>
-        <DialogTitle>Select quantity</DialogTitle>
-        <DialogSubHeader>{selectedItem.name} will be added to your cart.</DialogSubHeader>
-        <ImageContainer>
-          <img src= {selectedItem.img} alt="image"/>
-        </ImageContainer>
-        <ActionBar>
-          <PrimaryButton 
-            text="Remove from cart"
-            styles={DangerButtonStyles}
-            onClick={hideDialog}
-          />
-          <PrimaryButton 
-            text="Add to cart"
-            styles={SuccessButtonStyles}
-            onClick={addToCart}
-          />
-        </ActionBar>
-      </div>
-    </Modal>
-  )
-}
+class OrderDialog extends React.Component<IProps ,{} > {
 
+  public constructor(props: IProps) {
+    super(props);
+  }
+
+  private acceptTimer = -1;
+  private removeTimer = -1;
+
+  public mutationFunc(mutations){
+
+    mutations.forEach((mutationRecord) => {
+      let cursorPos = document.getElementById('cursor_icon')?.getBoundingClientRect();
+      let removePos = document.getElementById('remove')?.getBoundingClientRect();
+      let acceptPos = document.getElementById('accept')?.getBoundingClientRect();
+
+      if(this.props.isDialogOpen)
+      {
+        if(cursorPos && cursorPos.x && cursorPos.y){		
+          if( removePos && cursorPos.x >= removePos!.left && cursorPos.x <= removePos!.right &&
+            cursorPos.y >= removePos!.top && cursorPos.y <= removePos!.bottom){
+             if(this.removeTimer === -1){
+               this.removeTimer = (new Date().getTime() / 1000);
+              }
+             else if(Math.abs(this.removeTimer - (new Date().getTime() / 1000)) > 3){
+              this.removeTimer = -1;
+              document.getElementById("remove")?.click();
+             }
+           } else {
+             this.removeTimer = -1;
+           }
+        }
+  
+        if(cursorPos && cursorPos.x && cursorPos.y){		
+          if( acceptPos && cursorPos.x >= acceptPos!.left && cursorPos.x <= acceptPos!.right &&
+            cursorPos.y >= acceptPos!.top && cursorPos.y <= acceptPos!.bottom){
+             if(this.acceptTimer === -1){
+               this.acceptTimer = (new Date().getTime() / 1000);
+             }
+             else if(Math.abs(this.acceptTimer - (new Date().getTime() / 1000)) > 3){
+              this.acceptTimer = -1;
+              document.getElementById("accept")?.click();
+             }
+           } else {
+             this.acceptTimer = -1;
+           }
+        }
+      }
+      
+      
+  });   
+  }
+
+  private observer = new MutationObserver((mutations) => this.mutationFunc(mutations));
+
+  public componentDidMount(){
+    const target = this.props.imgRef.current;
+    this.observer.observe(target as Node, { attributes : true, attributeFilter : ['style'] });
+  }
+  
+  public render(): JSX.Element {
+    const { isDialogOpen, hideDialog, addToCart, selectedItem, imgRef } = this.props;
+    return (
+      <Modal
+        isOpen={isDialogOpen}
+        onDismiss={hideDialog}
+        isBlocking={false}
+        containerClassName={contentStyles.container}
+      >
+        <div className={contentStyles.body}>
+          <DialogTitle>Select quantity</DialogTitle>
+          <DialogSubHeader>{selectedItem.name} will be added to your cart.</DialogSubHeader>
+          <ImageContainer>
+            <img src= {selectedItem.img} alt="image"/>
+          </ImageContainer>
+          <ActionBar>
+            <PrimaryButton 
+              id = "remove"
+              text="Remove from cart"
+              styles={DangerButtonStyles}
+              onClick={hideDialog}
+            />
+            <PrimaryButton 
+              id = "accept"
+              text="Add to cart"
+              styles={SuccessButtonStyles}
+              onClick={addToCart}
+            />
+          </ActionBar>
+        </div>
+      </Modal>
+    )
+  }
+}
 
 export default OrderDialog 

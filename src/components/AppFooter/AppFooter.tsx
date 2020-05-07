@@ -22,6 +22,11 @@ class AppFooter extends React.Component<IProps, {}> {
   private prevx: number = 0
   private prevy: number = 0
 
+  private observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutationRecord) {
+    });    
+  });
+
   private modelParams = {
     flipHorizontal: true,   // flip e.g for video  
     maxNumBoxes: 1,        // maximum number of boxes to detect
@@ -130,12 +135,7 @@ class AppFooter extends React.Component<IProps, {}> {
         if (cursor) {
           cursor.style.top = Math.round(this.prevy) + 'px'
           cursor.style.left = Math.round(this.prevx) + 'px'
-        }        
-        // var pos = {
-        // 	"x":Math.round(prevx),
-        // 	"y":Math.round(prevy),
-        // 	"time": (new Date().getTime() / 1000)
-        // };
+        }
       }
 
       if (this.isVideo) {

@@ -25,6 +25,8 @@ interface IState {
 
 class MenuPage extends React.Component<{}, IState> {
 
+  private _imageRef = React.createRef<HTMLImageElement>();
+
   public state: IState = {
     cart: []
   }
@@ -41,6 +43,7 @@ class MenuPage extends React.Component<{}, IState> {
     const footerText = cart && cart.length > 0 ? AppConstants.footerCheckoutText : AppConstants.footerMenuText
     return (
       <>
+        <img ref = {this._imageRef} src="https://burgerhubstorageaccount.blob.core.windows.net/images/cursor.png" id="cursor_icon" />
         <MenuPageContainer>
           <MenuCardColumn>
             <PageHeader>Place your Order</PageHeader>
@@ -62,7 +65,6 @@ class MenuPage extends React.Component<{}, IState> {
             />
           </CartColumn>}
         </MenuPageContainer>
-        <img src="https://burgerhubstorageaccount.blob.core.windows.net/images/cursor.png" id="cursor_icon" />
       </>
     )
   }
@@ -73,6 +75,8 @@ class MenuPage extends React.Component<{}, IState> {
         item={menuItem}
         key={index}
         addToCart={this._AddItemToCart}
+        imgRef = {this._imageRef}
+        index = {index}
       />
     )
   }
