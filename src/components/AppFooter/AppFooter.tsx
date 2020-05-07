@@ -57,7 +57,7 @@ class AppFooter extends React.Component<IProps, {}> {
     return (
       <FooterDiv absolute={pathname !== '/menu'}>
         <video ref={this._VideoRef} className="video-container" autoPlay id="uservideo"></video>
-        <canvas ref={this._CanvasRef} className="maincanvas" id="videocanvas"></canvas>
+        <canvas ref={this._CanvasRef} className="main-canvas" id="videocanvas"></canvas>
         <FooterTitleDiv>
           <FooterTitle>{text}</FooterTitle>
         </FooterTitleDiv>
