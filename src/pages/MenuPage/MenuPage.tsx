@@ -43,7 +43,7 @@ class MenuPage extends React.Component<{}, IState> {
     const footerText = cart && cart.length > 0 ? AppConstants.footerCheckoutText : AppConstants.footerMenuText
     return (
       <>
-        <img ref = {this._imageRef} src="https://burgerhubstorageaccount.blob.core.windows.net/images/cursor.png" id="cursor_icon" />
+        <img ref = {this._imageRef} src="https://burgerhubstorageaccount.blob.core.windows.net/images/yellow_cursor.png" id="cursor_icon" />
         <MenuPageContainer>
           <MenuCardColumn>
             <PageHeader>Place your Order</PageHeader>

@@ -22,11 +22,6 @@ class AppFooter extends React.Component<IProps, {}> {
   private prevx: number = 0
   private prevy: number = 0
 
-  private observer = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutationRecord) {
-    });    
-  });
-
   private modelParams = {
     flipHorizontal: true,   // flip e.g for video  
     maxNumBoxes: 1,        // maximum number of boxes to detect

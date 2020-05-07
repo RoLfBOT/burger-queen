@@ -24,6 +24,10 @@ interface IState {
 
 class MenuItemComponent extends React.Component<IProps, IState> {
 
+  private _ItemRef = React.createRef<HTMLDivElement>()
+  private timer: number = -1;
+  private observer = new MutationObserver((mutations: MutationRecord[]) => this._MutationHandler(mutations));
+
   public state: IState = {
     showDialog: false
   }
@@ -33,55 +37,56 @@ class MenuItemComponent extends React.Component<IProps, IState> {
     this._HideOrderDialog = this._HideOrderDialog.bind(this)
     this._OpenOrderDialog = this._OpenOrderDialog.bind(this)
     this._CloseOrderDialogAndAddToCart = this._CloseOrderDialogAndAddToCart.bind(this)
-    this.mutationFunc = this.mutationFunc.bind(this);
+    this._MutationHandler = this._MutationHandler.bind(this);
   }
 
-  private timer = -1;
+  public _MutationHandler(mutations: MutationRecord[]) {
 
-  public mutationFunc(mutations){
+    mutations.forEach((mutationRecord: MutationRecord) => {
+      const cursorPos = this.props.imgRef.current?.getBoundingClientRect();
+      const itemPos = this._ItemRef.current?.getBoundingClientRect();
 
-    mutations.forEach((mutationRecord) => {let cursorPos = document.getElementById('cursor_icon')?.getBoundingClientRect();
-      let itemPos = document.getElementById('item'+this.props.index)?.getBoundingClientRect();
-      if(cursorPos && cursorPos.x && cursorPos.y){		
-        if(cursorPos.x >= itemPos!.left && cursorPos.x <= itemPos!.right &&
-          cursorPos.y >= itemPos!.top && cursorPos.y <= itemPos!.bottom){
-           if(this.timer === -1){
-             this.timer = (new Date().getTime() / 1000);
-            }
-           else if(Math.abs(this.timer - (new Date().getTime() / 1000)) > 3){
+      if (cursorPos && cursorPos.x && cursorPos.y) {
+        if (
+          cursorPos.x >= itemPos!.left && cursorPos.x <= itemPos!.right &&
+          cursorPos.y >= itemPos!.top && cursorPos.y <= itemPos!.bottom
+        ) {
+          if (this.timer === -1) {
+            this.timer = (new Date().getTime() / 1000);
+          }
+          else if (Math.abs(this.timer - (new Date().getTime() / 1000)) > 3) {
             this.timer = -1;
-            document.getElementById("item" + this.props.index)?.click();
-           }
-         } else {
-           this.timer = -1;
-         }
+            this._ItemRef.current && this._ItemRef.current.click();
+          }
+        } else {
+          this.timer = -1;
+        }
       }
-  });   
-  }
+    });
+  }  
 
-  private observer = new MutationObserver((mutations) => this.mutationFunc(mutations));
-
-  public componentDidMount(){
+  public componentDidMount() {
     const target = this.props.imgRef.current;
-    this.observer.observe(target as Node, { attributes : true, attributeFilter : ['style'] });
+    this.observer.observe(target as Node, { attributes: true, attributeFilter: ['style'] });
 
   }
 
   public render(): JSX.Element {
-    
-    const { item } = this.props
+
+    const { item, index } = this.props
     const { showDialog } = this.state
-    const itemId = 'item' + this.props.index;
-    
+    const itemId = 'item' + index;
+
     return (
       <>
         <ItemBox
-          id = {itemId}
+          id={itemId}
           onClick={this._OpenOrderDialog}
+          ref={this._ItemRef}
         >
           <ItemDisplayContainer>
-            <ItemDisplayImage src={item.img} />          
-          </ItemDisplayContainer>          
+            <ItemDisplayImage src={item.img} />
+          </ItemDisplayContainer>
           <ItemName >{item.name}</ItemName>
         </ItemBox>
         <OrderDialog
@@ -89,7 +94,7 @@ class MenuItemComponent extends React.Component<IProps, IState> {
           hideDialog={this._HideOrderDialog}
           addToCart={this._CloseOrderDialogAndAddToCart}
           selectedItem={item}
-          imgRef = {this.props.imgRef}
+          imgRef={this.props.imgRef}
         />
       </>
     )
