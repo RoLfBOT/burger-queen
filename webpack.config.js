@@ -53,13 +53,6 @@ module.exports = {
             loader: 'image-webpack-loader',            
           }
         ],
-      },
-      {
-        test: /\.config$/,
-        loader: 'file-loader',
-        options: {
-          name: '[name].[ext]'
-        }
       }
     ]
   },
@@ -67,7 +60,7 @@ module.exports = {
     new HtmlWepackPlugin({      
       template: path.resolve('./index.html')
     }),
-    new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: true })
+    new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: true }),
   ],
   optimization: {
     runtimeChunk: 'single',

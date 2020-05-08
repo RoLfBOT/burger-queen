@@ -24,15 +24,16 @@ interface IProps {
 
 class OrderDialog extends React.Component<IProps, {}> {
 
-  private observer = new MutationObserver((mutations) => this.mutationFunc(mutations));
+  private observer = new MutationObserver((mutations) => this._MutationHandler(mutations));
   private acceptTimer: number = -1;
   private removeTimer: number = -1;
 
   public constructor(props: IProps) {
     super(props);
+    this._MutationHandler = this._MutationHandler.bind(this);
   }
 
-  public mutationFunc(mutations: MutationRecord[]) {
+  public _MutationHandler(mutations: MutationRecord[]) {
 
     mutations.forEach((mutationRecord: MutationRecord) => {
       let cursorPos = this.props.imgRef.current?.getBoundingClientRect();      
@@ -77,9 +78,13 @@ class OrderDialog extends React.Component<IProps, {}> {
     });
   }
 
-  public componentDidMount() {
+  public componentDidMount(): void {
     const target = this.props.imgRef.current;
     this.observer.observe(target as Node, { attributes: true, attributeFilter: ['style'] });
+  }
+
+  public componentWillUnmount(): void {
+    this.observer.disconnect()
   }
 
   public render(): JSX.Element {

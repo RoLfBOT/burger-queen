@@ -17,10 +17,12 @@ import AppFooter from '../../components/AppFooter'
 import MenuData, { IMenu, IMenuItem, ICartItem } from '../../utils/DataHelper'
 import MenuItem from '../../components/MenuItem'
 import CartItem from '../../components/CartItem'
+import PaymentDialog from '../../components/PaymentDialog'
 import { AppConstants } from '../../utils/AppConstants'
 
 interface IState {
   cart: ICartItem[]
+  showPayment: boolean
 }
 
 class MenuPage extends React.Component<{}, IState> {
@@ -28,23 +30,26 @@ class MenuPage extends React.Component<{}, IState> {
   private _imageRef = React.createRef<HTMLImageElement>();
 
   public state: IState = {
-    cart: []
+    cart: [],
+    showPayment: false
   }
 
   public constructor(props: {}) {
     super(props)
     this._AddItemToCart = this._AddItemToCart.bind(this)
     this._RenderMenuItems = this._RenderMenuItems.bind(this)
+    this._OpenPaymentDialog = this._OpenPaymentDialog.bind(this)
+    this._HidePayementDialog = this._HidePayementDialog.bind(this)
   }
 
   public render(): JSX.Element {
     const { Items } = MenuData as IMenu
-    const { cart } = this.state
+    const { cart, showPayment } = this.state
     const footerText = cart && cart.length > 0 ? AppConstants.footerCheckoutText : AppConstants.footerMenuText
     const footerFontSize = cart && cart.length > 0 ? 30 : 40
     return (
       <>
-        <img ref = {this._imageRef} src="https://burgerhubstorageaccount.blob.core.windows.net/images/yellow_cursor.png" id="cursor_icon" />
+        <img ref={this._imageRef} src="https://burgerhubstorageaccount.blob.core.windows.net/images/yellow_cursor.png" id="cursor_icon" />
         <MenuPageContainer>
           <MenuCardColumn>
             <PageHeader>Place your Order</PageHeader>
@@ -64,9 +69,15 @@ class MenuPage extends React.Component<{}, IState> {
             <PrimaryButton
               styles={DoneButtonStyles}
               text="Done"
+              onClick={this._OpenPaymentDialog}
             />
           </CartColumn>}
         </MenuPageContainer>
+        <PaymentDialog
+          isDialogOpen={showPayment}
+          hideDialog={this._HidePayementDialog}
+          imgRef={this._imageRef}
+        />
       </>
     )
   }
@@ -77,8 +88,8 @@ class MenuPage extends React.Component<{}, IState> {
         item={menuItem}
         key={index}
         addToCart={this._AddItemToCart}
-        imgRef = {this._imageRef}
-        index = {index}
+        imgRef={this._imageRef}
+        index={index}
       />
     )
   }
@@ -94,10 +105,18 @@ class MenuPage extends React.Component<{}, IState> {
         key={index}
       />
     )
-    }
+  }
 
   private _AddItemToCart(item: IMenuItem): void {
     this.setState({ cart: this.state.cart.concat({ item, quantity: 1 }) })
+  }
+
+  private _OpenPaymentDialog(): void {
+    this.setState({ showPayment: true })
+  }
+
+  private _HidePayementDialog(): void {
+    this.setState({ showPayment: false })
   }
 }
 

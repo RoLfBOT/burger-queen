@@ -55,7 +55,7 @@ class MenuItemComponent extends React.Component<IProps, IState> {
             this.timer = (new Date().getTime() / 1000);
           }
           else if (Math.abs(this.timer - (new Date().getTime() / 1000)) > 3) {
-            this.timer = -1;
+            this.timer = -1;                   
             this._ItemRef.current && this._ItemRef.current.click();
           }
         } else {
@@ -65,10 +65,14 @@ class MenuItemComponent extends React.Component<IProps, IState> {
     });
   }  
 
-  public componentDidMount() {
+  public componentDidMount(): void {
     const target = this.props.imgRef.current;
     this.observer.observe(target as Node, { attributes: true, attributeFilter: ['style'] });
 
+  }
+
+  public componentWillUnmount(): void {
+    this.observer.disconnect()
   }
 
   public render(): JSX.Element {
@@ -102,10 +106,13 @@ class MenuItemComponent extends React.Component<IProps, IState> {
 
   private _OpenOrderDialog(): void {
     this.setState({ showDialog: true })
+    this.observer.disconnect()
   }
 
   private _HideOrderDialog(): void {
     this.setState({ showDialog: false })
+    const target = this.props.imgRef.current;
+    this.observer.observe(target as Node, { attributes: true, attributeFilter: ['style'] });
   }
 
   private _CloseOrderDialogAndAddToCart(): void {

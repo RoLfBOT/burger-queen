@@ -3,7 +3,6 @@ import * as ReactDOM from 'react-dom'
 
 import Routes from './routes'
 import './assets/reset.css'
-import './Web.config'
 
 const App = () => (
   <Routes />
