@@ -22,6 +22,8 @@ class LandingPage extends React.Component {
         <AppFooter
           text={AppConstants.footerLandingText}
           fontSize={50}
+          isOrderOpen = {false}
+          thumbsStatusUpdate = {null}
         />
       </>
     )

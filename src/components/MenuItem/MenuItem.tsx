@@ -17,6 +17,7 @@ interface IProps {
   index: number
   updateParentDialogState: (value: boolean) => void
   connectObserver: boolean
+  isThumbsUp: boolean
 }
 
 interface IState {
@@ -49,7 +50,7 @@ class MenuItemComponent extends React.Component<IProps, IState> {
 
   public componentDidUpdate(): void {
     const { connectObserver } = this.props
-    if (!connectObserver) {
+    if (connectObserver) {
       this.observer.disconnect()
     } else {
       const target = this.props.imgRef.current;
@@ -85,6 +86,7 @@ class MenuItemComponent extends React.Component<IProps, IState> {
           addToCart={this._CloseOrderDialogAndAddToCart}
           selectedItem={item}
           imgRef={this.props.imgRef}
+          isThumbsUp = {this.props.isThumbsUp}
         />
       </>
     )
@@ -93,11 +95,14 @@ class MenuItemComponent extends React.Component<IProps, IState> {
   private _OpenOrderDialog(): void {
     this.setState({ showDialog: true })
     this.props.updateParentDialogState(true)
+    this.observer.disconnect()
   }
 
   private _HideOrderDialog(): void {
     this.setState({ showDialog: false })
     this.props.updateParentDialogState(false)
+    const target = this.props.imgRef.current;
+    this.observer.observe(target as Node, { attributes: true, attributeFilter: ['style'] });
   }
 
   private _CloseOrderDialogAndAddToCart(): void {

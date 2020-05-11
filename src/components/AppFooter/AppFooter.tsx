@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { withRouter, RouteComponentProps } from 'react-router-dom'
 import * as HandTrack from 'handtrackjs'
+import * as tmImage from '@teachablemachine/image';
 
 import {
   FooterDiv,
@@ -11,6 +12,8 @@ import {
 interface IProps extends RouteComponentProps {
   text: string
   fontSize: number
+  isOrderOpen: boolean
+  thumbsStatusUpdate: any
 };
 
 class AppFooter extends React.Component<IProps, {}> {
@@ -22,6 +25,8 @@ class AppFooter extends React.Component<IProps, {}> {
 
   private prevx: number = 0
   private prevy: number = 0
+
+  private handGestureModel;
 
   private modelParams = {
     flipHorizontal: true,   // flip e.g for video  
@@ -38,6 +43,12 @@ class AppFooter extends React.Component<IProps, {}> {
   }
 
   public componentDidMount(): void {
+    const gestureModelURL = "https://devsangamstorageaccount.blob.core.windows.net/sanray/gesture_model.json";
+    const gestureMetadataURL = "https://devsangamstorageaccount.blob.core.windows.net/sanray/gesture_metadata.json";
+    tmImage.load(gestureModelURL, gestureMetadataURL).then(model => {
+      this.handGestureModel = model;
+    });
+    
     // @ts-ignore
     HandTrack.load(this.modelParams).then(model => {
       this.model = model
@@ -101,6 +112,7 @@ class AppFooter extends React.Component<IProps, {}> {
   private _MoveHand(): void {
     this.model.detect(this._VideoRef.current).then((predictions: any) => {
       const context = this._CanvasRef.current?.getContext('2d')
+      
       context && this.model.renderPredictions(predictions, this._CanvasRef.current, context, this._VideoRef.current)
 
       if (predictions[0]) {
@@ -132,12 +144,55 @@ class AppFooter extends React.Component<IProps, {}> {
         }
 
         const cursor = document.getElementById("cursor_icon")
-        if (cursor) {
+        if (!this.props.isOrderOpen && cursor) {
           cursor.style.top = Math.round(this.prevy) + 'px'
           cursor.style.left = Math.round(this.prevx) + 'px'
         }
-      }
 
+        if(this.props.isOrderOpen && context && this._VideoRef.current){
+          const width = this._VideoRef.current.width;
+	        const height = this._VideoRef.current.height;
+          var handx = predictions[0].bbox[0];
+          var handy = predictions[0].bbox[1];
+          var handw = predictions[0].bbox[2];
+          var handh = predictions[0].bbox[3];  
+
+          //make the box square
+          var max = Math.max(handw, handh);
+
+          //adding some padding
+          handx = handx - max/10;
+          handy = handy - max/5;
+          max = max + max/5;
+
+          context?.beginPath();
+          if(context){
+            context.fillStyle = "rgba(255, 255, 255, 0.6)";
+            context!.rect(handx, handy, max, max);
+
+            if((width > handx + max) && (height > handy + max)){ 
+              var imgData = context.getImageData(handx, handy, max, max);
+              var tcanvas = document.createElement('canvas');
+              tcanvas.width = max;
+              tcanvas.height = max;
+              var tcontext = tcanvas.getContext("2d");
+              tcontext!.putImageData(imgData, 0, 0);
+
+
+
+              this.handGestureModel.predict(tcanvas).then((pred:any) => {
+                if(pred[0].probability.toFixed(2) > 0.5){
+                  this.props.thumbsStatusUpdate(true);
+                } else {
+                  this.props.thumbsStatusUpdate(false);
+                }
+              });
+
+            }
+          
+          }
+        }
+      }
       if (this.isVideo) {
         requestAnimationFrame(this._MoveHand)
       }
