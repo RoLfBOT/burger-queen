@@ -4,7 +4,7 @@
   "author": "Kaustabh Kakoty",
   "license": "MIT",
   "scripts": {
-    "postinstall": "rimraf node_modules/@types/react-native node_modules/@types/webgl2",
+    "postinstall": "rimraf node_modules/@types/react-native",
     "clean": "rimraf build",
     "start:app": "npm run clean && webpack-dev-server --mode development --open",
     "lint:fix": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}' --quiet --fix",

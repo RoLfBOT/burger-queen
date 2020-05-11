@@ -95,14 +95,11 @@ class MenuItemComponent extends React.Component<IProps, IState> {
   private _OpenOrderDialog(): void {
     this.setState({ showDialog: true })
     this.props.updateParentDialogState(true)
-    this.observer.disconnect()
   }
 
   private _HideOrderDialog(): void {
     this.setState({ showDialog: false })
     this.props.updateParentDialogState(false)
-    const target = this.props.imgRef.current;
-    this.observer.observe(target as Node, { attributes: true, attributeFilter: ['style'] });
   }
 
   private _CloseOrderDialogAndAddToCart(): void {
