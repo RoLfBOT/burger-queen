@@ -20,6 +20,7 @@ interface IProps {
   addToCart: () => void
   selectedItem: IMenuItem
   imgRef: any
+  isThumbsUp: boolean
 }
 
 class OrderDialog extends React.Component<IProps, {}> {
@@ -27,6 +28,8 @@ class OrderDialog extends React.Component<IProps, {}> {
   private observer = new MutationObserver((mutations) => this._MutationHandler(mutations));
   private acceptTimer: number = -1;
   private removeTimer: number = -1;
+
+  private gestureTimer: number = -1;
 
   public constructor(props: IProps) {
     super(props);
@@ -87,8 +90,26 @@ class OrderDialog extends React.Component<IProps, {}> {
     this.observer.disconnect()
   }
 
+  public componentDidUpdate(): void {
+    if(this.props.isDialogOpen){
+      if (this.gestureTimer === -1) {
+        this.gestureTimer = (new Date().getTime() / 1000);
+      } else {
+        if(Math.abs(this.gestureTimer - (new Date().getTime() / 1000)) > 2){
+          if(this.props.isThumbsUp){
+            document.getElementById("accept")?.click();
+          } else {
+            document.getElementById("remove")?.click();
+          }
+          this.gestureTimer = -1;
+        }
+      }
+    }
+  }
+
   public render(): JSX.Element {
     const { isDialogOpen, hideDialog, addToCart, selectedItem } = this.props;
+    
     return (
       <Modal
         isOpen={isDialogOpen}
