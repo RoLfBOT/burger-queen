@@ -15,6 +15,8 @@ interface IProps {
   addToCart: (item: IMenuItem) => void
   imgRef: any
   index: number
+  updateParentDialogState: (value: boolean) => void
+  connectObserver: boolean
 }
 
 interface IState {
@@ -40,35 +42,19 @@ class MenuItemComponent extends React.Component<IProps, IState> {
     this._MutationHandler = this._MutationHandler.bind(this);
   }
 
-  public _MutationHandler(mutations: MutationRecord[]) {
-
-    mutations.forEach((mutationRecord: MutationRecord) => {
-      const cursorPos = this.props.imgRef.current?.getBoundingClientRect();
-      const itemPos = this._ItemRef.current?.getBoundingClientRect();
-
-      if (cursorPos && cursorPos.x && cursorPos.y) {
-        if (
-          cursorPos.x >= itemPos!.left && cursorPos.x <= itemPos!.right &&
-          cursorPos.y >= itemPos!.top && cursorPos.y <= itemPos!.bottom
-        ) {
-          if (this.timer === -1) {
-            this.timer = (new Date().getTime() / 1000);
-          }
-          else if (Math.abs(this.timer - (new Date().getTime() / 1000)) > 3) {
-            this.timer = -1;                   
-            this._ItemRef.current && this._ItemRef.current.click();
-          }
-        } else {
-          this.timer = -1;
-        }
-      }
-    });
-  }  
-
   public componentDidMount(): void {
-    const target = this.props.imgRef.current;
-    this.observer.observe(target as Node, { attributes: true, attributeFilter: ['style'] });
+      const target = this.props.imgRef.current;
+      this.observer.observe(target as Node, { attributes: true, attributeFilter: ['style'] });
+    }
 
+  public componentDidUpdate(): void {
+    const { connectObserver } = this.props
+    if (!connectObserver) {
+      this.observer.disconnect()
+    } else {
+      const target = this.props.imgRef.current;
+      this.observer.observe(target as Node, { attributes: true, attributeFilter: ['style'] });
+    }
   }
 
   public componentWillUnmount(): void {
@@ -106,18 +92,41 @@ class MenuItemComponent extends React.Component<IProps, IState> {
 
   private _OpenOrderDialog(): void {
     this.setState({ showDialog: true })
-    this.observer.disconnect()
+    this.props.updateParentDialogState(true)
   }
 
   private _HideOrderDialog(): void {
     this.setState({ showDialog: false })
-    const target = this.props.imgRef.current;
-    this.observer.observe(target as Node, { attributes: true, attributeFilter: ['style'] });
+    this.props.updateParentDialogState(false)
   }
 
   private _CloseOrderDialogAndAddToCart(): void {
     this.props.addToCart && this.props.addToCart(this.props.item)
     this.setState({ showDialog: false })
+  }
+
+  public _MutationHandler(mutations: MutationRecord[]) {
+    mutations.forEach((mutationRecord: MutationRecord) => {
+      const cursorPos = this.props.imgRef.current?.getBoundingClientRect();
+      const itemPos = this._ItemRef.current?.getBoundingClientRect();
+
+      if (cursorPos && cursorPos.x && cursorPos.y) {
+        if (
+          cursorPos.x >= itemPos!.left && cursorPos.x <= itemPos!.right &&
+          cursorPos.y >= itemPos!.top && cursorPos.y <= itemPos!.bottom
+        ) {
+          if (this.timer === -1) {
+            this.timer = (new Date().getTime() / 1000);
+          }
+          else if (Math.abs(this.timer - (new Date().getTime() / 1000)) > 3) {
+            this.timer = -1;
+            this._ItemRef.current && this._ItemRef.current.click();
+          }
+        } else {
+          this.timer = -1;
+        }
+      }
+    });
   }
 }
 
