@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Modal } from '@fluentui/react/lib/Modal'
-import { PrimaryButton } from '@fluentui/react/lib/Button'
+import { PrimaryButton, IButtonProps } from '@fluentui/react/lib/Button'
 
 import {
   contentStyles,
@@ -84,10 +84,20 @@ class PaymentDialog extends React.Component<IProps, {}> {
               text="Return to Cart"
               styles={DangerButtonStyles}
               onClick={hideDialog}
+              onRenderText={this._RenderButtonContent}
             />
           </ActionBar>
         </div>
       </Modal>
+    )
+  }
+
+  private _RenderButtonContent(props?: IButtonProps): JSX.Element {
+    return (
+      <div className="btn-container">
+        <span className="emoji">👎</span>
+        {props && <span className="text">{props.text}</span>}
+      </div>
     )
   }
 }

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Modal } from '@fluentui/react/lib/Modal'
-import { PrimaryButton } from '@fluentui/react/lib/Button'
+import { PrimaryButton, IButtonProps } from '@fluentui/react/lib/Button'
 
 import { IMenuItem } from '../../utils/DataHelper'
 
@@ -39,7 +39,7 @@ class OrderDialog extends React.Component<IProps, {}> {
   public _MutationHandler(mutations: MutationRecord[]) {
 
     mutations.forEach((mutationRecord: MutationRecord) => {
-      let cursorPos = this.props.imgRef.current?.getBoundingClientRect();      
+      let cursorPos = this.props.imgRef.current?.getBoundingClientRect();
       let removePos = document.getElementById('remove')?.getBoundingClientRect();
       let acceptPos = document.getElementById('accept')?.getBoundingClientRect();
 
@@ -91,12 +91,12 @@ class OrderDialog extends React.Component<IProps, {}> {
   }
 
   public componentDidUpdate(): void {
-    if(this.props.isDialogOpen){
+    if (this.props.isDialogOpen) {
       if (this.gestureTimer === -1) {
         this.gestureTimer = (new Date().getTime() / 1000);
       } else {
-        if(Math.abs(this.gestureTimer - (new Date().getTime() / 1000)) > 2){
-          if(this.props.isThumbsUp){
+        if (Math.abs(this.gestureTimer - (new Date().getTime() / 1000)) > 2) {
+          if (this.props.isThumbsUp) {
             document.getElementById("accept")?.click();
           } else {
             document.getElementById("remove")?.click();
@@ -109,7 +109,7 @@ class OrderDialog extends React.Component<IProps, {}> {
 
   public render(): JSX.Element {
     const { isDialogOpen, hideDialog, addToCart, selectedItem } = this.props;
-    
+
     return (
       <Modal
         isOpen={isDialogOpen}
@@ -129,16 +129,30 @@ class OrderDialog extends React.Component<IProps, {}> {
               text="Remove from cart"
               styles={DangerButtonStyles}
               onClick={hideDialog}
+              onRenderText={this._RenderButtonContent}
             />
             <PrimaryButton
               id="accept"
               text="Add to cart"
               styles={SuccessButtonStyles}
               onClick={addToCart}
+              onRenderText={this._RenderButtonContent}
             />
           </ActionBar>
         </div>
       </Modal>
+    )
+  }
+
+  private _RenderButtonContent(props?: IButtonProps): JSX.Element {
+    let emoji;
+    props?.text === "Add to cart" ?
+      emoji = "👍" : emoji = "👎"
+    return (
+      <div className="btn-container">
+        <span className="emoji">{emoji}</span>
+        {props && <span className="text">{props.text}</span>}
+      </div>
     )
   }
 }

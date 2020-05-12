@@ -1,10 +1,12 @@
 import * as React from 'react';
+import { ProgressIndicator } from '@fluentui/react/lib/ProgressIndicator'
 
 import {
   ItemBox,
   ItemDisplayContainer,
   ItemName,
-  ItemDisplayImage
+  ItemDisplayImage,
+  ProgressStyle
 } from './styles';
 
 import OrderDialog from '../OrderDialog'
@@ -22,17 +24,23 @@ interface IProps {
 
 interface IState {
   showDialog: boolean
+  timeToClick: number
 }
+
+const INTERVAL_DELAY = 300;
+const INTERVAL_INCREMENT = 0.1;
 
 
 class MenuItemComponent extends React.Component<IProps, IState> {
 
   private _ItemRef = React.createRef<HTMLDivElement>()
-  private timer: number = -1;
-  private observer = new MutationObserver((mutations: MutationRecord[]) => this._MutationHandler(mutations));
+  private timer: number = -1
+  private observer = new MutationObserver((mutations: MutationRecord[]) => this._MutationHandler(mutations))
+  private _Interval: NodeJS.Timeout | null
 
   public state: IState = {
-    showDialog: false
+    showDialog: false,
+    timeToClick: 0
   }
 
   public constructor(props: IProps) {
@@ -41,12 +49,13 @@ class MenuItemComponent extends React.Component<IProps, IState> {
     this._OpenOrderDialog = this._OpenOrderDialog.bind(this)
     this._CloseOrderDialogAndAddToCart = this._CloseOrderDialogAndAddToCart.bind(this)
     this._MutationHandler = this._MutationHandler.bind(this);
+    this._Interval = null
   }
 
   public componentDidMount(): void {
-      const target = this.props.imgRef.current;
-      this.observer.observe(target as Node, { attributes: true, attributeFilter: ['style'] });
-    }
+    const target = this.props.imgRef.current;
+    this.observer.observe(target as Node, { attributes: true, attributeFilter: ['style'] });
+  }
 
   public componentDidUpdate(): void {
     const { connectObserver } = this.props
@@ -60,12 +69,13 @@ class MenuItemComponent extends React.Component<IProps, IState> {
 
   public componentWillUnmount(): void {
     this.observer.disconnect()
+    this._Interval = null
   }
 
   public render(): JSX.Element {
 
     const { item, index } = this.props
-    const { showDialog } = this.state
+    const { showDialog, timeToClick } = this.state
     const itemId = 'item' + index;
 
     return (
@@ -75,9 +85,13 @@ class MenuItemComponent extends React.Component<IProps, IState> {
           onClick={this._OpenOrderDialog}
           ref={this._ItemRef}
         >
-          <ItemDisplayContainer>
+          <ItemDisplayContainer id="item-image">
             <ItemDisplayImage src={item.img} />
           </ItemDisplayContainer>
+          <ProgressIndicator
+            percentComplete={timeToClick}
+            styles={ProgressStyle}
+          />
           <ItemName >{item.name}</ItemName>
         </ItemBox>
         <OrderDialog
@@ -86,7 +100,7 @@ class MenuItemComponent extends React.Component<IProps, IState> {
           addToCart={this._CloseOrderDialogAndAddToCart}
           selectedItem={item}
           imgRef={this.props.imgRef}
-          isThumbsUp = {this.props.isThumbsUp}
+          isThumbsUp={this.props.isThumbsUp}
         />
       </>
     )
@@ -119,13 +133,40 @@ class MenuItemComponent extends React.Component<IProps, IState> {
         ) {
           if (this.timer === -1) {
             this.timer = (new Date().getTime() / 1000);
+            const itemImage = this._ItemRef.current?.querySelector('#item-image') as HTMLDivElement;
+            if (itemImage) itemImage.style.backgroundColor = "#FFEF9C";
+
+            this._Interval = setInterval(() => {
+              let percentComplete = this.state.timeToClick + INTERVAL_INCREMENT
+              if (percentComplete >= 1.0) {
+                console.log('complete')
+                percentComplete = 0
+                this.setState({ timeToClick: 0 })
+                clearInterval(this._Interval as NodeJS.Timeout)
+              }
+
+              if (this.timer === -1) {
+                console.log('timer 0')
+                percentComplete = 0
+                this.setState({ timeToClick: 0 })
+                clearInterval(this._Interval as NodeJS.Timeout)
+              }
+
+              this.setState({ timeToClick: percentComplete })
+            }, INTERVAL_DELAY)            
           }
           else if (Math.abs(this.timer - (new Date().getTime() / 1000)) > 3) {
             this.timer = -1;
-            this._ItemRef.current && this._ItemRef.current.click();
+            const itemImage = this._ItemRef.current?.querySelector('#item-image') as HTMLDivElement;
+            if (itemImage) itemImage.style.backgroundColor = "#F7F7F7";
+            clearInterval(this._Interval as NodeJS.Timeout)
+            this._ItemRef.current && this._ItemRef.current.click();            
           }
         } else {
           this.timer = -1;
+          const itemImage = this._ItemRef.current?.querySelector('#item-image') as HTMLDivElement;
+          if (itemImage) itemImage.style.backgroundColor = "#F7F7F7";
+          this.setState({ timeToClick: 0 })          
         }
       }
     });
