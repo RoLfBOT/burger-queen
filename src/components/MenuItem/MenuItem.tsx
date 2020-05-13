@@ -9,7 +9,6 @@ import {
   ProgressStyle
 } from './styles';
 
-import OrderDialog from '../OrderDialog'
 import { IMenuItem } from '../../utils/DataHelper';
 
 interface IProps {
@@ -17,9 +16,8 @@ interface IProps {
   addToCart: (item: IMenuItem) => void
   imgRef: any
   index: number
-  updateParentDialogState: (value: boolean) => void
-  connectObserver: boolean
-  isThumbsUp: boolean
+  updateParentDialogState: (value: boolean, selectedItem: IMenuItem) => void
+  connectObserver: boolean  
 }
 
 interface IState {
@@ -44,8 +42,7 @@ class MenuItemComponent extends React.Component<IProps, IState> {
   }
 
   public constructor(props: IProps) {
-    super(props)
-    this._HideOrderDialog = this._HideOrderDialog.bind(this)
+    super(props)    
     this._OpenOrderDialog = this._OpenOrderDialog.bind(this)
     this._CloseOrderDialogAndAddToCart = this._CloseOrderDialogAndAddToCart.bind(this)
     this._MutationHandler = this._MutationHandler.bind(this);
@@ -75,7 +72,7 @@ class MenuItemComponent extends React.Component<IProps, IState> {
   public render(): JSX.Element {
 
     const { item, index } = this.props
-    const { showDialog, timeToClick } = this.state
+    const { timeToClick } = this.state
     const itemId = 'item' + index;
 
     return (
@@ -94,26 +91,12 @@ class MenuItemComponent extends React.Component<IProps, IState> {
           />
           <ItemName >{item.name}</ItemName>
         </ItemBox>
-        <OrderDialog
-          isDialogOpen={showDialog}
-          hideDialog={this._HideOrderDialog}
-          addToCart={this._CloseOrderDialogAndAddToCart}
-          selectedItem={item}
-          imgRef={this.props.imgRef}
-          isThumbsUp={this.props.isThumbsUp}
-        />
       </>
     )
   }
 
-  private _OpenOrderDialog(): void {
-    this.setState({ showDialog: true })
-    this.props.updateParentDialogState(true)
-  }
-
-  private _HideOrderDialog(): void {
-    this.setState({ showDialog: false })
-    this.props.updateParentDialogState(false)
+  private _OpenOrderDialog(): void {        
+    this.props.updateParentDialogState(true, this.props.item)
   }
 
   private _CloseOrderDialogAndAddToCart(): void {

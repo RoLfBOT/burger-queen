@@ -31,7 +31,7 @@ class AppFooter extends React.Component<IProps, {}> {
   private prevx: number = 0
   private prevy: number = 0
 
-  private handGestureModel: tmImage.CustomMobileNet;
+  private handGestureModel: tmImage.CustomMobileNet | null;
 
   private modelParams = {
     flipHorizontal: true,   // flip e.g for video  
@@ -45,6 +45,7 @@ class AppFooter extends React.Component<IProps, {}> {
     this._DetectHand = this._DetectHand.bind(this)
     this._VideoEventListener = this._VideoEventListener.bind(this)
     this._MoveHand = this._MoveHand.bind(this)
+    this.handGestureModel = null
   }
 
   public componentDidMount(): void {
@@ -185,11 +186,11 @@ class AppFooter extends React.Component<IProps, {}> {
 
 
 
-              this.handGestureModel.predict(tcanvas).then((pred: IPrediction[]) => {
+              this.handGestureModel?.predict(tcanvas).then((pred: IPrediction[]) => {
                 if (pred[0].probability.toFixed(2) > 0.5) {
                   this.props.thumbsStatusUpdate(true);
                 } else {
-                  // this.props.thumbsStatusUpdate(false);
+                  this.props.thumbsStatusUpdate(false);
                 }
               });
 

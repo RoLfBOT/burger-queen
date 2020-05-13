@@ -17,77 +17,17 @@ import {
 interface IProps {
   isDialogOpen: boolean
   hideDialog?: () => void
-  addToCart: () => void
+  addToCart: (item: IMenuItem) => void
   selectedItem: IMenuItem
-  imgRef: any
   isThumbsUp: boolean
 }
 
 class OrderDialog extends React.Component<IProps, {}> {
-
-  private observer = new MutationObserver((mutations) => this._MutationHandler(mutations));
-  private acceptTimer: number = -1;
-  private removeTimer: number = -1;
-
   private gestureTimer: number = -1;
 
   public constructor(props: IProps) {
-    super(props);
-    this._MutationHandler = this._MutationHandler.bind(this);
-  }
-
-  public _MutationHandler(mutations: MutationRecord[]) {
-
-    mutations.forEach((mutationRecord: MutationRecord) => {
-      let cursorPos = this.props.imgRef.current?.getBoundingClientRect();
-      let removePos = document.getElementById('remove')?.getBoundingClientRect();
-      let acceptPos = document.getElementById('accept')?.getBoundingClientRect();
-
-      if (this.props.isDialogOpen) {
-        if (cursorPos && cursorPos.x && cursorPos.y) {
-          if (
-            removePos && cursorPos.x >= removePos!.left && cursorPos.x <= removePos!.right &&
-            cursorPos.y >= removePos!.top && cursorPos.y <= removePos!.bottom
-          ) {
-            if (this.removeTimer === -1) {
-              this.removeTimer = (new Date().getTime() / 1000);
-            }
-            else if (Math.abs(this.removeTimer - (new Date().getTime() / 1000)) > 3) {
-              this.removeTimer = -1;
-              document.getElementById("remove")?.click();
-            }
-          } else {
-            this.removeTimer = -1;
-          }
-        }
-
-        if (cursorPos && cursorPos.x && cursorPos.y) {
-          if (
-            acceptPos && cursorPos.x >= acceptPos!.left && cursorPos.x <= acceptPos!.right &&
-            cursorPos.y >= acceptPos!.top && cursorPos.y <= acceptPos!.bottom
-          ) {
-            if (this.acceptTimer === -1) {
-              this.acceptTimer = (new Date().getTime() / 1000);
-            }
-            else if (Math.abs(this.acceptTimer - (new Date().getTime() / 1000)) > 3) {
-              this.acceptTimer = -1;
-              document.getElementById("accept")?.click();
-            }
-          } else {
-            this.acceptTimer = -1;
-          }
-        }
-      }
-    });
-  }
-
-  public componentDidMount(): void {
-    const target = this.props.imgRef.current;
-    this.observer.observe(target as Node, { attributes: true, attributeFilter: ['style'] });
-  }
-
-  public componentWillUnmount(): void {
-    this.observer.disconnect()
+    super(props);    
+    this._AddToCartAndClose = this._AddToCartAndClose.bind(this)
   }
 
   public componentDidUpdate(): void {
@@ -108,7 +48,7 @@ class OrderDialog extends React.Component<IProps, {}> {
   }
 
   public render(): JSX.Element {
-    const { isDialogOpen, hideDialog, addToCart, selectedItem } = this.props;
+    const { isDialogOpen, hideDialog, selectedItem } = this.props;
 
     return (
       <Modal
@@ -135,13 +75,17 @@ class OrderDialog extends React.Component<IProps, {}> {
               id="accept"
               text="Add to cart"
               styles={SuccessButtonStyles}
-              onClick={addToCart}
+              onClick={this._AddToCartAndClose}
               onRenderText={this._RenderButtonContent}
             />
           </ActionBar>
         </div>
       </Modal>
     )
+  }
+
+  private _AddToCartAndClose(): void {
+    this.props.addToCart && this.props.addToCart(this.props.selectedItem)
   }
 
   private _RenderButtonContent(props?: IButtonProps): JSX.Element {

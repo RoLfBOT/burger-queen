@@ -16,6 +16,7 @@ import { PrimaryButton, IButtonProps } from '@fluentui/react/lib/Button'
 import AppFooter from '../../components/AppFooter'
 import MenuData, { IMenu, IMenuItem, ICartItem } from '../../utils/DataHelper'
 import MenuItem from '../../components/MenuItem'
+import OrderDialog from '../../components/OrderDialog'
 import CartItem from '../../components/CartItem'
 import PaymentDialog from '../../components/PaymentDialog'
 import { AppConstants } from '../../utils/AppConstants'
@@ -25,6 +26,7 @@ interface IState {
   showPayment: boolean
   itemDialogOpen: boolean
   isThumbsUp: boolean
+  selectedItem?: IMenuItem
 }
 
 class MenuPage extends React.Component<{}, IState> {
@@ -37,7 +39,8 @@ class MenuPage extends React.Component<{}, IState> {
     cart: [],
     showPayment: false,
     itemDialogOpen: false,
-    isThumbsUp: false
+    isThumbsUp: false,
+    selectedItem: undefined
   }
 
   public constructor(props: {}) {
@@ -49,6 +52,7 @@ class MenuPage extends React.Component<{}, IState> {
     this._ChangeItemDialogState = this._ChangeItemDialogState.bind(this)
     this._ThumbsStatusUpdate = this._ThumbsStatusUpdate.bind(this)
     this._MutationHandler = this._MutationHandler.bind(this)
+    this._HideOrderDialog = this._HideOrderDialog.bind(this)
   }
 
   public componentDidMount(): void {
@@ -62,7 +66,7 @@ class MenuPage extends React.Component<{}, IState> {
 
   public render(): JSX.Element {
     const { Items } = MenuData as IMenu
-    const { cart, showPayment } = this.state
+    const { cart, showPayment, itemDialogOpen, isThumbsUp, selectedItem } = this.state
     const footerText = cart && cart.length > 0 ? AppConstants.footerCheckoutText : AppConstants.footerMenuText
     const footerFontSize = cart && cart.length > 0 ? 30 : 40
     return (
@@ -95,6 +99,14 @@ class MenuPage extends React.Component<{}, IState> {
             />
           </CartColumn>}
         </MenuPageContainer>
+        {selectedItem &&
+          <OrderDialog
+            isDialogOpen={itemDialogOpen}
+            hideDialog={this._HideOrderDialog}
+            addToCart={this._AddItemToCart}
+            selectedItem={selectedItem}            
+            isThumbsUp={isThumbsUp}
+          />}
         <PaymentDialog
           isDialogOpen={showPayment}
           hideDialog={this._HidePayementDialog}
@@ -114,8 +126,7 @@ class MenuPage extends React.Component<{}, IState> {
         imgRef={this._imageRef}
         index={index}
         updateParentDialogState={this._ChangeItemDialogState}
-        connectObserver={itemDialogOpen}
-        isThumbsUp={this.state.isThumbsUp}
+        connectObserver={itemDialogOpen}        
       />
     )
   }
@@ -154,8 +165,12 @@ class MenuPage extends React.Component<{}, IState> {
     this.setState({ showPayment: false })
   }
 
-  private _ChangeItemDialogState(value: boolean): void {
-    this.setState({ itemDialogOpen: value })
+  private _HideOrderDialog(): void {
+    this.setState({ itemDialogOpen: false })
+  }
+
+  private _ChangeItemDialogState(value: boolean, selectedItem: IMenuItem): void {
+    this.setState({ itemDialogOpen: value, selectedItem })
   }
 
   private _ThumbsStatusUpdate(status: boolean): void {
