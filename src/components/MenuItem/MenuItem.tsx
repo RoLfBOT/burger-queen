@@ -12,8 +12,7 @@ import {
 import { IMenuItem } from '../../utils/DataHelper';
 
 interface IProps {
-  item: IMenuItem
-  addToCart: (item: IMenuItem) => void
+  item: IMenuItem  
   imgRef: any
   index: number
   updateParentDialogState: (value: boolean, selectedItem: IMenuItem) => void
@@ -43,8 +42,7 @@ class MenuItemComponent extends React.Component<IProps, IState> {
 
   public constructor(props: IProps) {
     super(props)    
-    this._OpenOrderDialog = this._OpenOrderDialog.bind(this)
-    this._CloseOrderDialogAndAddToCart = this._CloseOrderDialogAndAddToCart.bind(this)
+    this._OpenOrderDialog = this._OpenOrderDialog.bind(this)    
     this._MutationHandler = this._MutationHandler.bind(this);
     this._Interval = null
   }
@@ -99,11 +97,6 @@ class MenuItemComponent extends React.Component<IProps, IState> {
     this.props.updateParentDialogState(true, this.props.item)
   }
 
-  private _CloseOrderDialogAndAddToCart(): void {
-    this.props.addToCart && this.props.addToCart(this.props.item)
-    this.setState({ showDialog: false })
-  }
-
   public _MutationHandler(mutations: MutationRecord[]) {
     mutations.forEach((mutationRecord: MutationRecord) => {
       const cursorPos = this.props.imgRef.current?.getBoundingClientRect();
@@ -121,15 +114,13 @@ class MenuItemComponent extends React.Component<IProps, IState> {
 
             this._Interval = setInterval(() => {
               let percentComplete = this.state.timeToClick + INTERVAL_INCREMENT
-              if (percentComplete >= 1.0) {
-                console.log('complete')
+              if (percentComplete >= 1.0) {                
                 percentComplete = 0
                 this.setState({ timeToClick: 0 })
                 clearInterval(this._Interval as NodeJS.Timeout)
               }
 
-              if (this.timer === -1) {
-                console.log('timer 0')
+              if (this.timer === -1) {                
                 percentComplete = 0
                 this.setState({ timeToClick: 0 })
                 clearInterval(this._Interval as NodeJS.Timeout)

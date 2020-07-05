@@ -50,11 +50,28 @@ export const DialogSubHeader = styled.h2`
   margin-top: 20px;
 `
 
-export const ImageContainer = styled.div`
+export const OrderItemContainer = styled.div`  
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 16px;
+  margin: 64px;
+`
+
+export const ImageContainer = styled.div`
+  position: relative;
+`
+
+export const QuantityIndicator = styled.div`
+  border-radius: 50%;
+  background-color: #FFCD69;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 50px;
+  width: 50px;  
+  text-align: center;
+  display: table;
+  border: 5px solid #fff;
 `
 
 export const ActionBar = styled.div`

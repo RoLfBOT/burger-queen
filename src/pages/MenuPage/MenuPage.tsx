@@ -85,26 +85,28 @@ class MenuPage extends React.Component<{}, IState> {
               thumbsStatusUpdate={this._ThumbsStatusUpdate}
             />
           </MenuCardColumn>
-          {cart && cart.length > 0 && <CartColumn>
-            <OrderTitleDiv><span>Your Order</span></OrderTitleDiv>
-            <CartItemsDiv>
-              {cart.map(this._RenderCardPanel)}
-            </CartItemsDiv>
-            <PrimaryButton
-              id="done"
-              styles={DoneButtonStyles}
-              text="Done"
-              onClick={this._OpenPaymentDialog}
-              onRenderText={this._RenderButtonContent}
-            />
-          </CartColumn>}
+          {cart && cart.length > 0 &&
+            <CartColumn>
+              <OrderTitleDiv><span>Your Order</span></OrderTitleDiv>
+              <CartItemsDiv>
+                {cart.map(this._RenderCardPanel)}
+              </CartItemsDiv>
+              <PrimaryButton
+                id="done"
+                styles={DoneButtonStyles}
+                text="Done"
+                onClick={this._OpenPaymentDialog}
+                onRenderText={this._RenderButtonContent}
+              />
+            </CartColumn>
+          }
         </MenuPageContainer>
         {selectedItem &&
           <OrderDialog
             isDialogOpen={itemDialogOpen}
             hideDialog={this._HideOrderDialog}
             addToCart={this._AddItemToCart}
-            selectedItem={selectedItem}            
+            selectedItem={selectedItem}
             isThumbsUp={isThumbsUp}
           />}
         <PaymentDialog
@@ -122,11 +124,10 @@ class MenuPage extends React.Component<{}, IState> {
       <MenuItem
         item={menuItem}
         key={index}
-        addToCart={this._AddItemToCart}
         imgRef={this._imageRef}
         index={index}
         updateParentDialogState={this._ChangeItemDialogState}
-        connectObserver={itemDialogOpen}        
+        connectObserver={itemDialogOpen}
       />
     )
   }
@@ -153,8 +154,8 @@ class MenuPage extends React.Component<{}, IState> {
     )
   }
 
-  private _AddItemToCart(item: IMenuItem): void {
-    this.setState({ cart: this.state.cart.concat({ item, quantity: 1 }), itemDialogOpen: false })
+  private _AddItemToCart(item: IMenuItem, quantity: number): void {
+    this.setState({ cart: this.state.cart.concat({ item, quantity }), itemDialogOpen: false })
   }
 
   private _OpenPaymentDialog(): void {
@@ -189,7 +190,7 @@ class MenuPage extends React.Component<{}, IState> {
         ) {
           if (this._timer === -1) {
             this._timer = (new Date().getTime() / 1000);
-          } else if (Math.abs(this._timer - (new Date().getTime() / 1000)) > 3) {
+          } else if (Math.abs(this._timer - (new Date().getTime() / 1000)) > 2) {
             this._timer = -1
             document.getElementById("done")?.click()
           }

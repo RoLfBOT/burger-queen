@@ -67,7 +67,7 @@ export const CartItemsDiv = styled.div`
 
 export const DoneButtonStyles: Partial<IButtonStyles> = {
   root: {
-    margin: 12,
+    margin: "12px 12px 80px 12px",
     backgroundColor: "#1BCF8E",
     color: "#fff",
     borderRadius: 17,
