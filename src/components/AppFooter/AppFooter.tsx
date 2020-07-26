@@ -101,16 +101,18 @@ class AppFooter extends React.Component<IProps, {}> {
   }
 
   private _DetectHand(): void {
-    this.model.detect(this._VideoRef.current).then((predictions: any) => {
-      const context = this._CanvasRef.current?.getContext('2d')
-      this.model.renderPredictions(predictions, this._CanvasRef.current, context, this._VideoRef.current)
+    let model = this.model;
+    let canvasRef = this._VideoRef;
+    model && canvasRef.current && model.detect(this._VideoRef.current).then((predictions: any) => {
+      const context = this._CanvasRef.current?.getContext('2d');
+      this._CanvasRef.current && model.renderPredictions(predictions, this._CanvasRef.current, context, this._VideoRef.current);
 
       if (predictions[0]) {
-        window.location.assign('#/menu')
+        window.location.assign('#/menu');
       }
 
       if (this.isVideo) {
-        requestAnimationFrame(this._DetectHand)
+        requestAnimationFrame(this._DetectHand);
       }
     })
   }
