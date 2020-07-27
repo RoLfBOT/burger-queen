@@ -119,9 +119,8 @@ class AppFooter extends React.Component<IProps, {}> {
 
   private _MoveHand(): void {
     this.model.detect(this._VideoRef.current).then((predictions: any) => {
-      const context = this._CanvasRef.current?.getContext('2d')
-
-      context && this.model.renderPredictions(predictions, this._CanvasRef.current, context, this._VideoRef.current)
+      const context = this._CanvasRef.current?.getContext('2d');
+      context && this.model.renderPredictions(predictions, this._CanvasRef.current, context, this._VideoRef.current);
 
       if (predictions[0]) {
         const xbuffer = 150;
@@ -129,11 +128,11 @@ class AppFooter extends React.Component<IProps, {}> {
         const flicker = 7;
         var midx = predictions[0].bbox[0] + (predictions[0].bbox[2] / 2);
         var midy = predictions[0].bbox[1] + (predictions[0].bbox[3] / 2);
-        let videoWith = -1
-        let videoHeight = -1
+        let videoWith = -1;
+        let videoHeight = -1;
         if (this._VideoRef.current) {
-          videoWith = this._VideoRef.current.width
-          videoHeight = this._VideoRef.current.height
+          videoWith = this._VideoRef.current.width;
+          videoHeight = this._VideoRef.current.height;
         }
         midx = (midx / videoWith) * window.innerWidth;
         midy = (midy / videoHeight) * window.innerHeight;
@@ -153,8 +152,8 @@ class AppFooter extends React.Component<IProps, {}> {
 
         const cursor = document.getElementById("cursor_icon")
         if (!this.props.isOrderOpen && cursor) {
-          cursor.style.top = Math.round(this.prevy) + 'px'
-          cursor.style.left = Math.round(this.prevx) + 'px'
+          cursor.style.top = Math.round(this.prevy) + 'px';
+          cursor.style.left = Math.round(this.prevx) + 'px';
         }
 
         if (this.props.isOrderOpen && context && this._VideoRef.current) {
@@ -185,11 +184,8 @@ class AppFooter extends React.Component<IProps, {}> {
               tcanvas.height = max;
               var tcontext = tcanvas.getContext("2d");
               tcontext!.putImageData(imgData, 0, 0);
-
-
-
               this.handGestureModel?.predict(tcanvas).then((pred: IPrediction[]) => {
-                if (pred[0].probability.toFixed(2) > 0.5) {
+                if (pred[0].probability > 0.5) {
                   this.props.thumbsStatusUpdate(true);
                 } else {
                   this.props.thumbsStatusUpdate(false);
@@ -202,7 +198,7 @@ class AppFooter extends React.Component<IProps, {}> {
         }
       }
       if (this.isVideo) {
-        requestAnimationFrame(this._MoveHand)
+        requestAnimationFrame(this._MoveHand);
       }
     })
   }
