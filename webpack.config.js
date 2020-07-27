@@ -25,13 +25,13 @@ module.exports = {
     rules: [
       {
         test: /\.(js|jsx)$/,
-        exclude: '/node_modules/',
+        exclude: /node_modules/,
         use: ['babel-loader']
       },
       {
         test: /\.tsx?$/,
         include: path.join(__dirname, "src"),
-        exclude: '/node_modules/',
+        exclude: /node_modules/,
         use: [
           { loader: "babel-loader" },
           { loader: "ts-loader", options: { transpileOnly: true } }
@@ -60,7 +60,7 @@ module.exports = {
     new HtmlWepackPlugin({      
       template: path.resolve('./index.html')
     }),
-    new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: false }),
+    new ForkTsCheckerWebpackPlugin({ checkSyntacticErrors: true }),
   ],
   optimization: {
     runtimeChunk: 'single',

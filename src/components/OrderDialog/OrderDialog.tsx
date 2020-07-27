@@ -43,12 +43,6 @@ class OrderDialog extends React.Component<IProps, IState> {
     this._AddToCartAndClose = this._AddToCartAndClose.bind(this)
   }
 
-  public componentDidMount(): void {
-    setTimeout(() => {
-      this.setState({ quantity: 2 })
-    }, 2000)
-  }
-
   public componentDidUpdate(): void {
     if (this.props.isDialogOpen) {
       if (this.gestureTimer === -1) {
