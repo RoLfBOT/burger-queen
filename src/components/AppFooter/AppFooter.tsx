@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { withRouter, RouteComponentProps } from 'react-router-dom'
-import * as HandTrack from 'handtrackjs'
+import { withRouter, RouteComponentProps } from 'react-router-dom';
 import * as tmImage from '@teachablemachine/image';
+import * as tf from "@tensorflow/tfjs";
+import * as handpose from "@tensorflow-models/handpose";
 
 import {
   FooterDiv,
@@ -9,7 +10,21 @@ import {
   FooterTitle
 } from './styles'
 
-interface IPrediction {
+import { DrawKeypoints, DrawVideoCanvas } from '../../utils/CanvasHelper';
+
+interface IAnnotatedPrediction {
+  annotations: {
+    [key: string]: Array<[number, number, number]>;
+  };
+  handInViewConfidence: number;
+  landmarks: Array<[number, number, number]>;
+  boundingBox: {
+    topLeft: [number, number];
+    bottomRight: [number, number];
+  };
+}
+
+interface IGesturePrediction {
   className: string
   probability: number
 }
@@ -30,21 +45,19 @@ class AppFooter extends React.Component<IProps, {}> {
 
   private prevx: number = 0
   private prevy: number = 0
+  private xCordinateIdx = 1;
+  private yCordinateIdx = 0;
+
+  private _SetRouteTimeout = true;
 
   private handGestureModel: tmImage.CustomMobileNet | null;
-
-  private modelParams = {
-    flipHorizontal: true,   // flip e.g for video  
-    maxNumBoxes: 1,        // maximum number of boxes to detect
-    iouThreshold: 0.5,      // ioU threshold for non-max suppression
-    scoreThreshold: 0.9,    // confidence threshold for predictions.
-  }
 
   public constructor(props: IProps) {
     super(props);
     this._DetectHand = this._DetectHand.bind(this)
     this._VideoEventListener = this._VideoEventListener.bind(this)
     this._MoveHand = this._MoveHand.bind(this)
+    this._InitHandtrack = this._InitHandtrack.bind(this)
     this.handGestureModel = null
   }
 
@@ -55,12 +68,16 @@ class AppFooter extends React.Component<IProps, {}> {
       this.handGestureModel = model;
     });
 
-    // @ts-ignore
-    HandTrack.load(this.modelParams).then(model => {
-      this.model = model
-      HandTrack.startVideo(this._VideoRef.current)
-    })
-    this._VideoRef.current?.addEventListener('playing', this._VideoEventListener, false)
+    console.log('CDM');
+    this._InitHandtrack();
+  }
+
+  public componentDidUpdate(): void {
+    console.log('CDU');
+  }
+
+  public componentWillUnmount(): void {
+    console.log('CWU');
   }
 
   public render(): JSX.Element {
@@ -82,6 +99,35 @@ class AppFooter extends React.Component<IProps, {}> {
     )
   }
 
+  private async _InitHandtrack(): Promise<void> {
+    await tf.setBackend('webgl');
+    this.model = await handpose.load();
+
+    await this._SetupCamera();
+  }
+
+  private async _SetupCamera(): Promise<void> {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      throw new Error(
+        'Browser API navigator.mediaDevices.getUserMedia not available');
+    }
+
+    const video = this._VideoRef.current as HTMLVideoElement;
+    const stream = await navigator.mediaDevices.getUserMedia({
+      'audio': false,
+      'video': {
+        facingMode: 'user',
+        width: { exact: 720 },
+        height: { exact: 720 },
+      },
+    });
+    video.srcObject = stream;
+    video.onloadedmetadata = () => {
+      video.addEventListener('playing', this._VideoEventListener, false)
+      video.play();
+    }
+  }
+
   private _VideoEventListener(): any {
     if (this._VideoRef.current?.videoWidth === 0) {
       console.error('videoWidth is 0. Camera not connected?');
@@ -91,8 +137,9 @@ class AppFooter extends React.Component<IProps, {}> {
         this._VideoRef.current.width = this._VideoRef.current.videoWidth * 0.5
         this._VideoRef.current.height = this._VideoRef.current.videoHeight * 0.5
       }
+
       this.isVideo = true;
-      if (window.location.hash !== "#/menu") {
+      if (this.props.location.pathname !== "/menu") {
         this._DetectHand()
       } else {
         this._MoveHand()
@@ -100,107 +147,103 @@ class AppFooter extends React.Component<IProps, {}> {
     }
   }
 
-  private _DetectHand(): void {
-    let model = this.model;
-    let canvasRef = this._VideoRef;
-    model && canvasRef.current && model.detect(this._VideoRef.current).then((predictions: any) => {
-      const context = this._CanvasRef.current?.getContext('2d');
-      this._CanvasRef.current && model.renderPredictions(predictions, this._CanvasRef.current, context, this._VideoRef.current);
+  private async _DetectHand(): Promise<void> {
+    const video = this._VideoRef.current as HTMLVideoElement;
+    const canvas = this._CanvasRef.current as HTMLCanvasElement;
+    let prediction: IAnnotatedPrediction[] = [];
 
-      if (predictions[0]) {
-        window.location.assign('#/menu');
-      }
+    if (canvas) {
+      DrawVideoCanvas(canvas, video);
+    }
 
-      if (this.isVideo) {
-        requestAnimationFrame(this._DetectHand);
+    if (this.isVideo) prediction = await this.model.estimateHands(video);
+
+    // hand is detected
+    if (prediction[0]) {
+      DrawKeypoints(canvas.getContext('2d') as CanvasRenderingContext2D, prediction[0].landmarks);
+      if (this._SetRouteTimeout) {
+        setTimeout(() => {
+          this.isVideo = false;
+          this.props.location.pathname !== '/menu' && this.props.history.push('/menu')
+        }, 2000);
       }
-    })
+      this._SetRouteTimeout = false;
+    }
+
+    if (this.isVideo) {
+      requestAnimationFrame(this._DetectHand)
+    }
   }
 
-  private _MoveHand(): void {
-    this.model.detect(this._VideoRef.current).then((predictions: any) => {
-      const context = this._CanvasRef.current?.getContext('2d');
-      context && this.model.renderPredictions(predictions, this._CanvasRef.current, context, this._VideoRef.current);
+  private async _MoveHand(): Promise<void> {
+    const video = this._VideoRef.current as HTMLVideoElement;
+    const canvas = this._CanvasRef.current as HTMLCanvasElement;
 
-      if (predictions[0]) {
-        const xbuffer = 150;
-        const ybuffer = 100;
-        const flicker = 7;
-        var midx = predictions[0].bbox[0] + (predictions[0].bbox[2] / 2);
-        var midy = predictions[0].bbox[1] + (predictions[0].bbox[3] / 2);
-        let videoWith = -1;
-        let videoHeight = -1;
-        if (this._VideoRef.current) {
-          videoWith = this._VideoRef.current.width;
-          videoHeight = this._VideoRef.current.height;
-        }
-        midx = (midx / videoWith) * window.innerWidth;
-        midy = (midy / videoHeight) * window.innerHeight;
-        midx = ((midx - xbuffer) / (window.innerWidth - 2 * xbuffer)) * window.innerWidth;
-        midy = ((midy - ybuffer) / (window.innerHeight - 2 * ybuffer)) * window.innerHeight;
+    if (canvas) {
+      DrawVideoCanvas(canvas, video);
+    }
 
-        //remove flickering			
-        if (Math.abs(midx - this.prevx) > flicker) //significant change
-        {
-          this.prevx = midx;
-        }
+    const prediction: IAnnotatedPrediction[] = await this.model.estimateHands(video);
 
-        if (Math.abs(midy - this.prevy) > flicker) //significant change
-        {
-          this.prevy = midy;
-        }
+    if (prediction[0]) {
+      const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+      DrawKeypoints(context, prediction[0].landmarks);
 
-        const cursor = document.getElementById("cursor_icon")
-        if (!this.props.isOrderOpen && cursor) {
-          cursor.style.top = Math.round(this.prevy) + 'px';
-          cursor.style.left = Math.round(this.prevx) + 'px';
-        }
+      const minThreshold = 15, maxThreshold = 1440;
+      const xbuffer = 150;
+      const ybuffer = 100;
 
-        if (this.props.isOrderOpen && context && this._VideoRef.current) {
-          const width = this._VideoRef.current.width;
-          const height = this._VideoRef.current.height;
-          var handx = predictions[0].bbox[0];
-          var handy = predictions[0].bbox[1];
-          var handw = predictions[0].bbox[2];
-          var handh = predictions[0].bbox[3];
+      let pointerX = prediction[0].landmarks[8][this.yCordinateIdx],
+        pointerY = prediction[0].landmarks[8][this.xCordinateIdx];
 
-          //make the box square
-          var max = Math.max(handw, handh);
+      pointerX = (pointerX / (2 * video.width)) * window.innerWidth;
+      pointerY = ((pointerY + ybuffer) / (2 * video.height)) * window.innerHeight;
 
-          //adding some padding
-          handx = handx - max / 10;
-          handy = handy - max / 5;
-          max = max + max / 5;
+      pointerX = ((pointerX - xbuffer) / (window.innerWidth - 2 * xbuffer)) * window.innerWidth;
+      pointerY = ((pointerY - ybuffer) / (window.innerHeight - 2 * ybuffer)) * window.innerHeight;
 
-          context?.beginPath();
-          if (context) {
-            context.fillStyle = "rgba(255, 255, 255, 0.6)";
-            context!.rect(handx, handy, max, max);
+      if (
+        Math.abs(pointerX - this.prevx) > minThreshold &&
+        Math.abs(pointerX - this.prevx) < maxThreshold
+      ) {
+        this.prevx = pointerX;
+      }
+      if (
+        Math.abs(pointerY - this.prevy) > minThreshold &&
+        Math.abs(pointerY - this.prevy) < maxThreshold
+      ) {
+        this.prevy = pointerY;
+      }
 
-            if ((width > handx + max) && (height > handy + max)) {
-              var imgData = context.getImageData(handx, handy, max, max);
-              var tcanvas = document.createElement('canvas');
-              tcanvas.width = max;
-              tcanvas.height = max;
-              var tcontext = tcanvas.getContext("2d");
-              tcontext!.putImageData(imgData, 0, 0);
-              this.handGestureModel?.predict(tcanvas).then((pred: IPrediction[]) => {
-                if (pred[0].probability > 0.5) {
-                  this.props.thumbsStatusUpdate(true);
-                } else {
-                  this.props.thumbsStatusUpdate(false);
-                }
-              });
+      const cursor = document.getElementById("cursor_icon")
+      if (!this.props.isOrderOpen && cursor) {
+        cursor.style.top = Math.round(this.prevy) + 'px';
+        cursor.style.right = Math.round(this.prevx) + 'px';
+      }
 
+      if (this.props.isOrderOpen && context && this._VideoRef.current) {
+        context.beginPath();
+        if (context) {
+          let imgData = context.getImageData(0, 0, 720, 720);
+
+          let tcanvas = document.createElement('canvas');
+          tcanvas.width = 720;
+          tcanvas.height = 720;
+          let tcontext = tcanvas.getContext("2d") as CanvasRenderingContext2D;
+          tcontext.putImageData(imgData, 0, 0);
+          this.handGestureModel?.predict(tcanvas).then((pred: IGesturePrediction[]) => {
+            if (pred[0].probability > 0.5) {
+              this.props.thumbsStatusUpdate(true);
+            } else {
+              this.props.thumbsStatusUpdate(false);
             }
-
-          }
+          });
         }
-      }
-      if (this.isVideo) {
-        requestAnimationFrame(this._MoveHand);
-      }
-    })
+      }    
+    }
+    if (this.isVideo) {
+      requestAnimationFrame(this._MoveHand);
+    }
   }
 }
 
